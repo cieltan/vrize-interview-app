@@ -39,8 +39,10 @@ runs Oxlint.
   glowing gradient) opens a left-side chat panel. The assistant is a mock: paste a **product
   image URL** (or a SKU) and it returns the matching products; ask for the **biggest
   discounts** ("on sale", "best deal") and it returns on-sale items sorted by discount %;
-  otherwise it does a loose keyword lookup. Results render as detailed cards (image, brand,
-  rating, sale pricing, stock, Add). No real AI/backend — matching is local.
+  otherwise it does a loose keyword lookup. The chat previews up to **2** result cards; when
+  more matched, a **"Show all N results"** button opens a full results page in a new tab
+  (`?results=<query>`) that re-runs the same matching and renders the whole grid. No real
+  AI/backend — matching is local.
 - **Toolbar** (`Toolbar.tsx`) — sort by price / rating / **biggest discount**, an "on sale
   only" filter, and a result count.
 - **Pagination** (`Pagination.tsx`) — the grid pages at 6 items with prev/next + page
@@ -103,8 +105,12 @@ runs Oxlint.
 - "Add to cart" is additive (clicking repeatedly increments quantity) rather than
   navigating anywhere or opening the cart automatically — the cart badge updating live is
   meant to be enough feedback.
-- No routing, accounts, or checkout flow — "Checkout" in the cart panel is a disabled-when-empty
-  visual endpoint only, per the stated scope.
+- No router, accounts, or checkout flow — "Checkout" in the cart panel is a
+  disabled-when-empty visual endpoint only, per the stated scope. The one exception is the
+  AI "show all results" page, which `main.tsx` renders based on a `?results=<query>` URL
+  param (a deliberately minimal alternative to pulling in a router). Because it opens in a
+  new tab with its own JS context, its cart is independent of the main tab's (no
+  cross-tab/persistence layer).
 
 ## With more time
 

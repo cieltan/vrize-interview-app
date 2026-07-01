@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import type { ChatMessage } from '../hooks/useAiChat'
+import { buildResultsUrl } from '../match'
 import { ChatProductCard } from './ChatProductCard'
+
+// Show at most a couple of results inline; the rest live on the "show all" results page.
+const CHAT_PREVIEW_COUNT = 2
 
 interface AiChatPanelProps {
   open: boolean
@@ -70,9 +74,18 @@ export function AiChatPanel({ open, onClose, messages, typing, onSend, onAddToCa
 
                   {m.products && m.products.length > 0 && (
                     <div className="mt-2 flex flex-col gap-2">
-                      {m.products.map((p) => (
+                      {m.products.slice(0, CHAT_PREVIEW_COUNT).map((p) => (
                         <ChatProductCard key={p.id} product={p} onAddToCart={onAddToCart} />
                       ))}
+                      {m.products.length > CHAT_PREVIEW_COUNT && m.query && (
+                        <button
+                          type="button"
+                          onClick={() => window.open(buildResultsUrl(m.query!), '_blank', 'noopener')}
+                          className="w-full cursor-pointer rounded-sm border border-gray-300 bg-white px-3 py-2 text-xs font-semibold text-gray-800 transition hover:bg-gray-50"
+                        >
+                          Show all {m.products.length} results ↗
+                        </button>
+                      )}
                     </div>
                   )}
                 </div>

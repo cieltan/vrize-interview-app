@@ -74,9 +74,12 @@ exercise.
     on-sale products sorted by discount %, best first — mirroring the page's "Biggest
     discount" sort.
   - Otherwise it does a loose keyword lookup across name/brand/category/tags.
-  Results render as detailed `ChatProductCard`s (image, brand, rating, sale pricing +
-  discount %, stock, Add). There's no real AI/backend; matching is local, and chat "Add"
-  buttons reuse `cart.addToCart`.
+  Matching lives in a pure `match.ts` (`matchProducts`) shared by the chat and the results
+  page. The chat previews at most **2** `ChatProductCard`s; when more matched, a "Show all
+  N results ↗" button opens a new tab at `?results=<query>`, which `main.tsx` routes to a
+  full `AiResultsPage` (re-runs `matchProducts`, renders the whole matching grid with the
+  shared cart + toasts). There's no real AI/backend; matching is local, and "Add" buttons
+  reuse the cart store.
 - **Sort** includes `discount_desc` ("Biggest discount"), computed via `discountPercent`
   in `products/pricing.ts` (shared by the card, the page sort, and the AI mock).
 - **Add-to-cart toasts** (`features/toast`) — `App` wraps the add action in
@@ -124,11 +127,13 @@ src/
         CartPanel.tsx         — slide-over cart (reads store)
     ai-search/                — the AI search chat (its own feature)
       index.ts                — barrel
+      match.ts                — pure matchProducts + results-URL helpers
       hooks/
-        useAiChat.ts          — mock AI (image-URL / discount / keyword lookup)
+        useAiChat.ts          — mock AI chat state (uses matchProducts)
       components/
-        AiChatPanel.tsx       — left-side slide-over chat
+        AiChatPanel.tsx       — left-side slide-over chat (previews 2 + "show all")
         ChatProductCard.tsx   — detailed product result card
+        AiResultsPage.tsx     — full "all results for a query" page (new tab)
     toast/                    — cross-cutting toast notifications
       index.ts                — barrel
       useToasts.ts            — toast state + auto-dismiss
