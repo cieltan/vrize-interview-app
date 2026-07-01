@@ -1,12 +1,13 @@
-import { formatCurrency } from '../format'
+import { formatCurrency } from '../../products'
+import { useCart } from '../useCart'
 
 interface CartButtonProps {
-  totalItems: number
-  totalPrice: number
   onClick: () => void
 }
 
-export function CartButton({ totalItems, totalPrice, onClick }: CartButtonProps) {
+export function CartButton({ onClick }: CartButtonProps) {
+  const { totalItems, totalPrice } = useCart()
+
   return (
     <button
       type="button"

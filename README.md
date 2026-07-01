@@ -2,7 +2,7 @@
 
 A small e-commerce product listing page: browse a catalog, add items to a cart, and see a
 live running total in a side panel. Built with React + TypeScript + Vite, styled with
-Tailwind CSS v4.
+Tailwind CSS v4, with a global cart store in Zustand.
 
 ## Running it
 
@@ -26,11 +26,11 @@ runs Oxlint.
 - **Toasts** (`features/toast`) — adding to cart fires a clean auto-dismissing toast; the
   add action only toasts when a unit was actually added (`useCart.addToCart` returns a
   boolean so the stock cap doesn't produce false confirmations).
-- **Cart** (`features/products/hooks/useCart.ts` + `components/CartPanel.tsx`) — a
+- **Cart** (`features/cart/` — a global Zustand store + `CartButton`/`CartPanel`) — a
   slide-over side panel triggered from a header button. Shows line items with a quantity
   stepper (capped at available stock), a remove link, and a live subtotal. The header
   button itself is a compact badge showing item count + running total, so the total is
-  visible even with the panel closed.
+  visible even with the panel closed. Both the grid and the AI chat add into the same store.
 - **Search** (`SearchField.tsx`, composed by `SearchBar.tsx`) — a regex search box
   (case-insensitive, matches name/brand/category) that runs **only on Enter** (or the ↵
   Enter button); applying shows a brief spinner + "Searching…" hint. Invalid patterns fall
@@ -77,10 +77,12 @@ runs Oxlint.
   running total, but the panel (with quantities/remove) only renders when opened. This
   keeps the main grid uncluttered while still supporting the quantity-stepper stretch
   goal.
-- **Cart state lives in `App` via a `useCart(products)` hook**, keyed by product id
-  (`Record<id, quantity>`), rather than a global store — the app is small enough that
-  prop drilling two levels is simpler than adding context/state-management
-  infrastructure.
+- **Cart is a global Zustand store** (`features/cart/store.ts`), since it's read/written
+  from the header, cart panel, product grid, and AI chat. The store holds `quantities` plus
+  a `catalog` (hydrated from the loaded products) so its actions — `addToCart` (with the
+  stock cap), `setQuantity`, `removeFromCart` — are self-contained; `CartButton`/`CartPanel`
+  subscribe directly instead of receiving cart props. `App` still wraps `addToCart` to fire
+  the add-to-cart toast, keeping the grid/AI cards decoupled from the cart feature.
 - **"On sale" is derived, not read from a flag.** A product counts as on sale when
   `originalPrice != null && originalPrice > price`, rather than trusting the `sale` tag —
   keeps the UI logic consistent even if tagging is inconsistent in the source data.

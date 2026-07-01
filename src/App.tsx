@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   useProducts,
-  useCart,
   ProductCard,
   ProductCardSkeleton,
   EmptyState,
@@ -9,10 +8,9 @@ import {
   Toolbar,
   type SortOption,
   Pagination,
-  CartButton,
-  CartPanel,
   discountPercent,
 } from './features/products'
+import { useCartStore, CartButton, CartPanel } from './features/cart'
 import { useAiChat, AiChatPanel } from './features/ai-search'
 import { useToasts, ToastViewport } from './features/toast'
 
@@ -20,9 +18,17 @@ const PAGE_SIZE = 6
 
 function App() {
   const { products, loading } = useProducts()
-  const cart = useCart(products)
   const chat = useAiChat(products)
   const toasts = useToasts()
+
+  const quantities = useCartStore((s) => s.quantities)
+  const addToCart = useCartStore((s) => s.addToCart)
+  const hydrateCatalog = useCartStore((s) => s.hydrateCatalog)
+
+  // Keep the global cart store's catalog in sync with the loaded products.
+  useEffect(() => {
+    hydrateCatalog(products)
+  }, [products, hydrateCatalog])
 
   // Random hero image from the internet, picked once per session.
   const [heroSeed] = useState(() => Math.floor(Math.random() * 100000))
@@ -53,7 +59,7 @@ function App() {
 
   // Add to cart + a confirmation toast (only when a unit was actually added).
   const handleAddToCart = (productId: string) => {
-    if (!cart.addToCart(productId)) return
+    if (!addToCart(productId)) return
     const product = products.find((p) => p.id === productId)
     if (product) toasts.add(`Added ${product.name} to cart`)
   }
@@ -139,11 +145,7 @@ function App() {
       >
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
           <h1 className="text-xl font-bold text-gray-900">Vrize Store</h1>
-          <CartButton
-            totalItems={cart.totalItems}
-            totalPrice={cart.totalPrice}
-            onClick={() => setCartOpen(true)}
-          />
+          <CartButton onClick={() => setCartOpen(true)} />
         </div>
       </header>
 
@@ -204,7 +206,7 @@ function App() {
               <ProductCard
                 key={product.id}
                 product={product}
-                quantityInCart={cart.quantities[product.id] ?? 0}
+                quantityInCart={quantities[product.id] ?? 0}
                 onAddToCart={handleAddToCart}
               />
             ))}
@@ -215,15 +217,7 @@ function App() {
         )}
       </main>
 
-      <CartPanel
-        open={cartOpen}
-        onClose={() => setCartOpen(false)}
-        lineItems={cart.lineItems}
-        totalItems={cart.totalItems}
-        totalPrice={cart.totalPrice}
-        onSetQuantity={cart.setQuantity}
-        onRemove={cart.removeFromCart}
-      />
+      <CartPanel open={cartOpen} onClose={() => setCartOpen(false)} />
 
       <AiChatPanel
         open={aiOpen}

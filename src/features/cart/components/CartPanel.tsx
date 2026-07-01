@@ -1,25 +1,17 @@
-import type { CartLineItem } from '../hooks/useCart'
-import { formatCurrency } from '../format'
+import { formatCurrency } from '../../products'
+import { useCart } from '../useCart'
+import { useCartStore } from '../store'
 
 interface CartPanelProps {
   open: boolean
   onClose: () => void
-  lineItems: CartLineItem[]
-  totalItems: number
-  totalPrice: number
-  onSetQuantity: (productId: string, quantity: number) => void
-  onRemove: (productId: string) => void
 }
 
-export function CartPanel({
-  open,
-  onClose,
-  lineItems,
-  totalItems,
-  totalPrice,
-  onSetQuantity,
-  onRemove,
-}: CartPanelProps) {
+export function CartPanel({ open, onClose }: CartPanelProps) {
+  const { lineItems, totalItems, totalPrice } = useCart()
+  const setQuantity = useCartStore((s) => s.setQuantity)
+  const removeFromCart = useCartStore((s) => s.removeFromCart)
+
   return (
     <>
       <div
@@ -79,7 +71,7 @@ export function CartPanel({
                       <div className="flex items-center rounded-lg border border-gray-300">
                         <button
                           type="button"
-                          onClick={() => onSetQuantity(product.id, quantity - 1)}
+                          onClick={() => setQuantity(product.id, quantity - 1)}
                           aria-label={`Decrease quantity of ${product.name}`}
                           className="cursor-pointer px-2 py-1 text-gray-600 hover:bg-gray-100"
                         >
@@ -88,7 +80,7 @@ export function CartPanel({
                         <span className="min-w-[2ch] px-1 text-center text-sm">{quantity}</span>
                         <button
                           type="button"
-                          onClick={() => onSetQuantity(product.id, quantity + 1)}
+                          onClick={() => setQuantity(product.id, quantity + 1)}
                           disabled={quantity >= product.stockCount}
                           aria-label={`Increase quantity of ${product.name}`}
                           className="cursor-pointer px-2 py-1 text-gray-600 hover:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-300 disabled:hover:bg-transparent"
@@ -98,7 +90,7 @@ export function CartPanel({
                       </div>
                       <button
                         type="button"
-                        onClick={() => onRemove(product.id)}
+                        onClick={() => removeFromCart(product.id)}
                         className="cursor-pointer text-xs font-medium text-gray-400 hover:text-rose-600"
                       >
                         Remove

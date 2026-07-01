@@ -9,6 +9,7 @@ exercise.
 - **React 19 + TypeScript**, bundled with **Vite**.
 - **Tailwind CSS v4** (via `@tailwindcss/vite`) for styling — utility classes only, no
   component library.
+- **Zustand** for the global cart store.
 - **Oxlint** for linting.
 - Commands: `pnpm dev`, `pnpm build`, `pnpm lint`.
 
@@ -35,9 +36,14 @@ exercise.
 - **"On sale" is derived, not tag-driven.** A product is on sale when
   `originalPrice != null && originalPrice > price`, rather than trusting the `sale` tag —
   keeps pricing UI consistent regardless of tagging.
-- **Cart state is local to `App` via `useCart(products)`**, keyed by product id
-  (`Record<id, quantity>`). No global store or context — the app is small enough that this
-  is simpler and clearer. Line items, totals, and item count are derived via `useMemo`.
+- **Cart is a global Zustand store** (`features/cart/store.ts`), since it's shared across
+  the header, cart panel, product grid, and AI chat. The store owns `quantities`
+  (`Record<id, quantity>`) plus a `catalog` (hydrated from the loaded products in `App`) so
+  its actions (`addToCart` with the stock cap, `setQuantity`, `removeFromCart`) are
+  self-contained. `useCart()` is a selector hook that derives line items + totals; the
+  `CartButton`/`CartPanel` read the store directly rather than taking cart props. `App`
+  still wraps `addToCart` in `handleAddToCart` to fire the toast, and passes that down to
+  the grid/AI cards (which stay decoupled from the cart feature).
 - **Cart is a side panel, not just a badge.** The header button always shows count +
   running total; the slide-over panel (quantities, remove, subtotal) renders on demand to
   keep the grid uncluttered.
@@ -106,11 +112,16 @@ src/
       products.json           — bundled catalog (the mock "API" data)
       hooks/
         useProducts.ts        — simulated data load + loading state
-        useCart.ts            — cart state, line items, totals
       components/
         ProductCard.tsx, ProductCardSkeleton.tsx, StockBadge.tsx, StarRating.tsx,
-        SearchField.tsx, SearchBar.tsx, Toolbar.tsx, Pagination.tsx,
-        CartButton.tsx, CartPanel.tsx, EmptyState.tsx
+        SearchField.tsx, SearchBar.tsx, Toolbar.tsx, Pagination.tsx, EmptyState.tsx
+    cart/                     — global cart (Zustand)
+      index.ts                — barrel
+      store.ts                — useCartStore (quantities + catalog + actions)
+      useCart.ts              — selector hook: line items + totals
+      components/
+        CartButton.tsx        — header badge (reads store)
+        CartPanel.tsx         — slide-over cart (reads store)
     ai-search/                — the AI search chat (its own feature)
       index.ts                — barrel
       hooks/
