@@ -18,10 +18,11 @@ runs Oxlint.
 
 - **Hero + product grid** — a full-bleed hero with a random `picsum.photos` image (seeded
   once per session) sits under a sticky header that hides on scroll-down and reveals on
-  scroll-up. Below it, a tight square grid (`ProductCard.tsx`, Bose "New Arrivals" style)
-  shows image, name, brand, star rating, price (strikethrough original + "-N%" badge on
-  sale), and a stock badge for `in_stock` / `low_stock` (units left) / `out_of_stock` (card
-  dims, button disabled).
+  scroll-up. Below it, a tight, borderless tiled grid (`ProductCard.tsx`, Bose "New
+  Arrivals" style): each card has a tag pill from the product's `tags`, a wishlist heart
+  toggle, name, brand, a 5-star rating graphic, price (with strikethrough original + green
+  "Save $X" on sale), and a stock badge for `in_stock` / `low_stock` (units left) /
+  `out_of_stock` (card dims, button disabled).
 - **Toasts** (`features/toast`) — adding to cart fires a clean auto-dismissing toast; the
   add action only toasts when a unit was actually added (`useCart.addToCart` returns a
   boolean so the stock cap doesn't produce false confirmations).
@@ -108,7 +109,6 @@ runs Oxlint.
 - Persist cart to `localStorage` so it survives a refresh (explicitly out of scope here,
   but the natural next step).
 - Category/brand filtering in the toolbar, in addition to sort + sale-only.
-- Toast/inline confirmation on "Add to cart" beyond the badge count changing.
 - Basic unit tests for `useCart` (totals, quantity clamping, removal) and the sale-price
   derivation logic.
 - Keyboard/focus trapping in the cart panel (currently closes on backdrop click and an

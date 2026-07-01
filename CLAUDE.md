@@ -81,10 +81,11 @@ exercise.
   session. The sticky header hides on scroll-down past ~160px and reveals on scroll-up
   (`headerHidden` state + a scroll listener in `App`).
 - **Currency:** all data is USD; `Intl.NumberFormat` is used for formatting.
-- **Cards are large/bold and laid out as a tight, square grid** (2-col, 3-col at `lg`,
-  small `gap-2` gutters, hairline borders, no rounding/shadow — Bose "New Arrivals" style)
-  with an image zoom on hover. Long names are clamped to two lines with a `title` tooltip
-  so the grid stays aligned.
+- **Cards follow a refined, borderless tiled grid** (2-col, 3-col at `lg`, small `gap-2`
+  gutters on a `bg-gray-100` page — Bose "New Arrivals" style): tag pill from `tags`, a
+  wishlist heart toggle (local, non-persistent), restrained typography, a 5-star
+  `StarRating` graphic, strikethrough + green "Save $X" on sale, and an image zoom on
+  hover. Long names clamp to two lines with a `title` tooltip so the grid stays aligned.
 
 ## Structure
 
