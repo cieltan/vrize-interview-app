@@ -1,5 +1,13 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useProducts, ProductCard, ProductCardSkeleton } from '../../products'
+import {
+  useProducts,
+  ProductCard,
+  ProductCardSkeleton,
+  EmptyState,
+  Toolbar,
+  type SortOption,
+  applyProductView,
+} from '../../products'
 import { useCartStore, CartButton, CartPanel } from '../../cart'
 import { useToasts, ToastViewport } from '../../toast'
 import { matchProducts } from '../match'
@@ -14,6 +22,8 @@ export function AiResultsPage({ query }: AiResultsPageProps) {
   const { products, loading } = useProducts()
   const toasts = useToasts()
   const [cartOpen, setCartOpen] = useState(false)
+  const [sort, setSort] = useState<SortOption>('featured')
+  const [saleOnly, setSaleOnly] = useState(false)
 
   const quantities = useCartStore((s) => s.quantities)
   const addToCart = useCartStore((s) => s.addToCart)
@@ -24,6 +34,7 @@ export function AiResultsPage({ query }: AiResultsPageProps) {
   }, [products, hydrateCatalog])
 
   const matched = useMemo(() => matchProducts(query, products).products, [query, products])
+  const visible = useMemo(() => applyProductView(matched, { saleOnly, sort }), [matched, saleOnly, sort])
 
   const handleAddToCart = (productId: string) => {
     if (!addToCart(productId)) return
@@ -49,27 +60,43 @@ export function AiResultsPage({ query }: AiResultsPageProps) {
           {loading ? 'Searching…' : `${matched.length} ${matched.length === 1 ? 'product' : 'products'} matched`}
         </p>
 
-        <div className="mt-6 grid grid-cols-2 gap-2 lg:grid-cols-3">
-          {loading && Array.from({ length: 6 }).map((_, i) => <ProductCardSkeleton key={i} />)}
-
-          {!loading &&
-            matched.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                quantityInCart={quantities[product.id] ?? 0}
-                onAddToCart={handleAddToCart}
-              />
-            ))}
-        </div>
-
-        {!loading && matched.length === 0 && (
+        {!loading && matched.length === 0 ? (
           <div className="mt-10 rounded-xl border border-dashed border-gray-300 py-16 text-center">
             <p className="text-sm font-medium text-gray-900">No products matched “{query}”.</p>
             <a href={window.location.pathname} className="mt-3 inline-block text-sm font-semibold text-gray-900 underline">
               Back to the store
             </a>
           </div>
+        ) : (
+          <>
+            <div className="mt-6">
+              <Toolbar
+                sort={sort}
+                onSortChange={setSort}
+                saleOnly={saleOnly}
+                onSaleOnlyChange={setSaleOnly}
+                resultCount={visible.length}
+              />
+            </div>
+
+            <div className="mt-6 grid grid-cols-2 gap-2 lg:grid-cols-3">
+              {loading && Array.from({ length: 6 }).map((_, i) => <ProductCardSkeleton key={i} />)}
+
+              {!loading && visible.length === 0 && (
+                <EmptyState onReset={() => { setSaleOnly(false); setSort('featured') }} />
+              )}
+
+              {!loading &&
+                visible.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    quantityInCart={quantities[product.id] ?? 0}
+                    onAddToCart={handleAddToCart}
+                  />
+                ))}
+            </div>
+          </>
         )}
       </main>
 

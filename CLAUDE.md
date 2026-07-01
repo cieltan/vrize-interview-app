@@ -78,10 +78,11 @@ exercise.
   page. The chat previews at most **2** `ChatProductCard`s; when more matched, a "Show all
   N results ↗" button opens a new tab at `?results=<query>`, which `main.tsx` routes to a
   full `AiResultsPage` (re-runs `matchProducts`, renders the whole matching grid with the
-  shared cart + toasts). There's no real AI/backend; matching is local, and "Add" buttons
-  reuse the cart store.
-- **Sort** includes `discount_desc` ("Biggest discount"), computed via `discountPercent`
-  in `products/pricing.ts` (shared by the card, the page sort, and the AI mock).
+  shared cart + toasts, plus its own sort + "on sale only" Toolbar). There's no real
+  AI/backend; matching is local, and "Add" buttons reuse the cart store.
+- **Sort + "on sale only" filtering** live in `products/view.ts` (`applyProductView`),
+  shared by the store page (`App`) and the AI results page so behaviour stays identical.
+  Sort includes `discount_desc` ("Biggest discount") via `discountPercent`.
 - **Add-to-cart toasts** (`features/toast`) — `App` wraps the add action in
   `handleAddToCart`, which fires a toast only when a unit was actually added. `useCart`'s
   `addToCart` returns a boolean for this (false at the stock cap). Toasts render via

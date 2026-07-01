@@ -41,8 +41,8 @@ runs Oxlint.
   discounts** ("on sale", "best deal") and it returns on-sale items sorted by discount %;
   otherwise it does a loose keyword lookup. The chat previews up to **2** result cards; when
   more matched, a **"Show all N results"** button opens a full results page in a new tab
-  (`?results=<query>`) that re-runs the same matching and renders the whole grid. No real
-  AI/backend — matching is local.
+  (`?results=<query>`) that re-runs the same matching, renders the whole grid, and carries
+  its own sort + "on sale only" toolbar. No real AI/backend — matching is local.
 - **Toolbar** (`Toolbar.tsx`) — sort by price / rating / **biggest discount**, an "on sale
   only" filter, and a result count.
 - **Pagination** (`Pagination.tsx`) — the grid pages at 6 items with prev/next + page

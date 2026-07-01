@@ -13,5 +13,6 @@ export { StockBadge } from './components/StockBadge'
 export { formatCurrency } from './format'
 export { isOnSale, discountPercent } from './pricing'
 export { deriveStock } from './stock'
+export { applyProductView, type ProductViewOptions } from './view'
 
 export type { Product, StockStatus } from './types'

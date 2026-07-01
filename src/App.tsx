@@ -8,7 +8,7 @@ import {
   Toolbar,
   type SortOption,
   Pagination,
-  discountPercent,
+  applyProductView,
 } from './features/products'
 import { useCartStore, CartButton, CartPanel } from './features/cart'
 import { useAiChat, AiChatPanel } from './features/ai-search'
@@ -110,18 +110,7 @@ function App() {
       )
     }
 
-    if (saleOnly) {
-      list = list.filter((p) => p.originalPrice != null && p.originalPrice > p.price)
-    }
-
-    if (sort === 'featured') return list
-
-    const sorted = [...list]
-    if (sort === 'price_asc') sorted.sort((a, b) => a.price - b.price)
-    if (sort === 'price_desc') sorted.sort((a, b) => b.price - a.price)
-    if (sort === 'rating_desc') sorted.sort((a, b) => b.rating - a.rating)
-    if (sort === 'discount_desc') sorted.sort((a, b) => discountPercent(b) - discountPercent(a))
-    return sorted
+    return applyProductView(list, { saleOnly, sort })
   }, [products, search.regex, saleOnly, sort])
 
   const totalPages = Math.max(1, Math.ceil(filteredProducts.length / PAGE_SIZE))
